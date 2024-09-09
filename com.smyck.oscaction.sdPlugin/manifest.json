@@ -1,0 +1,32 @@
+{
+  "Actions": [
+    {
+      "UUID": "com.smyck.oscaction",
+      "Name": "OSC Action",
+      "Tooltip": "Trigger an OSC Action",
+      "Icon": "actionIcon",
+      "States": [
+        {
+          "Image": "actionDefaultImage",
+          "TitleAlignment": "middle"
+        }
+      ],
+      "PropertyInspectorPath": "property_inspector.html"
+    }
+  ],
+  "SDKVersion": 2,
+  "Software": {
+    "MinimumVersion": "4.1"
+  },
+  "OS": [
+    {
+      "Platform": "mac",
+      "MinimumVersion": "10.11"
+    }
+  ],
+  "Version": "1.0",
+  "Author": "hukl",
+  "Name": "OSC Action Plugin",
+  "Description": "It is wonderful",
+  "CodePath": "oscaction"
+}

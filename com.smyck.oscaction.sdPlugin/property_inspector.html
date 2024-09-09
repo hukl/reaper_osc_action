@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OSC Action Settings</title>
+  <link rel="stylesheet" href="sdpi.css">
+</head>
+<body>
+  <div class="sdpi-wrapper">
+    <div class="sdpi-item" id="your_ip_required" title="Command">
+        <div class="sdpi-item-label">IP-Address</div>
+        <input class="sdpi-item-value" id="ip" value="">
+    </div>
+    <div class="sdpi-item" id="your_ip_required" title="Command">
+        <div class="sdpi-item-label">Port</div>
+        <input class="sdpi-item-value" id="port" value="">
+    </div>
+    <div class="sdpi-item" id="your_ip_required" title="Command">
+        <div class="sdpi-item-label">Command ID</div>
+        <input class="sdpi-item-value" id="command_id" value="">
+    </div>
+  </div>
+
+  <script>
+      const ip_input         = document.querySelector("input#ip");
+      const port_input       = document.querySelector("input#port");
+      const command_id_input = document.querySelector("input#command_id");
+
+      window.connectElgatoStreamDeckSocket = function(inPort, inPropertyInspectorUUID, inRegisterEvent, inInfo, inActionInfo) {
+        const actionInfo = JSON.parse(inActionInfo);
+        const settings   = actionInfo.payload.settings;
+        const websocket  = new WebSocket(`ws://localhost:${inPort}`);
+
+        if (settings.ip) {
+          ip_input.value = settings.ip;
+        }
+        if (settings.port) {
+          port_input.value = settings.port;
+        }
+        if (settings.command_id) {
+          command_id_input.value = settings.command_id;
+        }
+
+        websocket.onopen = function() {
+          // WebSocket is connected, register the Property Inspector
+          var json = {
+           "event": inRegisterEvent,
+           "uuid": inPropertyInspectorUUID
+          };
+
+          websocket.send(JSON.stringify(json));
+        };
+
+        websocket.onmessage = function (evt) {
+          console.log(evt);
+        }
+
+
+        command_id_input.addEventListener("input", function () {
+          const payload = {
+            event: "setSettings",
+            context: inPropertyInspectorUUID,
+            payload: {
+              ip:         ip_input.value,
+              port:       port_input.value,
+              command_id: command_id_input.value
+            }
+          };
+          websocket.send(JSON.stringify(payload));
+        });
+      };
+    </script>
+</body>
+</html>

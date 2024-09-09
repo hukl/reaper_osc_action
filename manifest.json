@@ -1,0 +1,42 @@
+{
+  "Actions": [
+    {
+      "UUID": "com.smyck.oscaction",
+      "Name": "OSC Action",
+      "Tooltip": "Trigger an OSC Action",
+      "Icon": "images/defaultIcon",
+      "States": [
+        {
+          "Image": "images/defaultImage",
+          "TitleAlignment": "middle"
+        }
+      ],
+      "UserPreferences": [
+        {
+          "key": "ipAddress",
+          "label": "IP Address",
+          "type": "text"
+        },
+        {
+          "key": "port",
+          "label": "Port",
+          "type": "number"
+        },
+        {
+          "key": "commandID",
+          "label": "Command ID",
+          "type": "number"
+        }
+      ]
+    }
+  ],
+  "SDKVersion": 2,
+  "Software": {
+    "MinimumVersion": "4.1"
+  },
+  "Platform": "all",
+  "Version": "1.0",
+  "Author": "Your Name",
+  "Name": "OSC Action Plugin",
+  "CodePath": "oscaction"
+}
