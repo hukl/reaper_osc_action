@@ -61,6 +61,23 @@ func handleEvent(event Event) {
     sendOSC(ip, port, commandID)
 }
 
+func handleWillAppearEvent(event Event) {
+    // If no settings are present, initialize default settings
+    if event.Payload.Settings.IPAddress == "" || event.Payload.Settings.CommandID == "" {
+        log.Println("No settings found, initializing default settings")
+        currentSettings = Settings{
+            IPAddress: "127.0.0.1", // default IP
+            Port:      8000,        // default port
+            CommandID: "defaultCommand", // default command
+        }
+        log.Printf("Initialized settings: IP: %s, Port: %d, Command ID: %s\n", currentSettings.IPAddress, currentSettings.Port, currentSettings.CommandID)
+    } else {
+        // If settings are present, load them
+        log.Printf("Settings loaded from willAppear: IP: %s, Port: %d, Command ID: %s\n", event.Payload.Settings.IPAddress, event.Payload.Settings.Port, event.Payload.Settings.CommandID)
+        currentSettings = event.Payload.Settings
+    }
+}
+
 func main() {
     f, err := os.OpenFile("plugin_debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
     if err != nil {
@@ -129,6 +146,11 @@ func main() {
         // Handle the keyDown event (button press)
         if event.Event == "keyDown" {
             handleEvent(event)
+        }
+
+        if event.Event == "willAppear" {
+            log.Println("Plugin appeared, initializing settings...")
+            handleWillAppearEvent(event)
         }
 
         // Handle the didReceiveSettings event to update the global settings
