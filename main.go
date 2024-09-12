@@ -18,9 +18,9 @@ type RegistrationMessage struct {
 }
 
 type Settings struct {
-    IPAddress string `json:"ipAddress"`
+    IPAddress string `json:"ip"`
     Port      int    `json:"port"`
-    CommandID int    `json:"commandID"`
+    CommandID string `json:"command_id"`
 }
 
 type Event struct {
@@ -35,17 +35,20 @@ type Event struct {
 // Global variable to store settings
 var currentSettings Settings
 
-func sendOSC(ip string, port int, commandID int) {
+func sendOSC(ip string, port int, commandID string) {
     // Create OSC client and send the message
+
+    log.Printf("COMMAND ID %s", commandID)
+
     client := osc.NewClient(ip, port)
     msg := osc.NewMessage("/action")
-    msg.Append(int32(commandID))
+    msg.Append(commandID)
 
     err := client.Send(msg)
     if err != nil {
         log.Fatalf("Failed to send OSC message: %v", err)
     }
-    fmt.Printf("OSC message sent to %s:%d with Command ID: %d\n", ip, port, commandID)
+    fmt.Printf("OSC message sent to %s:%d with Command ID: %s\n", ip, port, commandID)
 }
 
 func handleEvent(event Event) {
@@ -54,7 +57,7 @@ func handleEvent(event Event) {
     port := currentSettings.Port
     commandID := currentSettings.CommandID
 
-    fmt.Printf("Received keyDown event: Triggering OSC action with IP: %s, Port: %d, Command ID: %d\n", ip, port, commandID)
+    log.Printf("Received keyDown event: Triggering OSC action with IP: %s, Port: %d, Command ID: %s\n", ip, port, commandID)
     sendOSC(ip, port, commandID)
 }
 
@@ -130,8 +133,9 @@ func main() {
 
         // Handle the didReceiveSettings event to update the global settings
         if event.Event == "didReceiveSettings" {
+            log.Printf("Raw settings: %+v\n", event.Payload.Settings)
             currentSettings = event.Payload.Settings
-            fmt.Printf("Settings received: IP: %s, Port: %d, Command ID: %d\n", currentSettings.IPAddress, currentSettings.Port, currentSettings.CommandID)
+            log.Printf("Settings received: IP: %q, Port: %d, Command ID: %s\n", currentSettings.IPAddress, currentSettings.Port, currentSettings.CommandID)
         }
     }
 }
