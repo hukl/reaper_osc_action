@@ -12,7 +12,7 @@
     </div>
     <div class="sdpi-item" id="your_ip_required" title="Command">
         <div class="sdpi-item-label">Port</div>
-        <input class="sdpi-item-value" id="port" value="">
+        <input class="sdpi-item-value" id="port" value="" pattern="\d{1,5}">
     </div>
     <div class="sdpi-item" id="your_ip_required" title="Command">
         <div class="sdpi-item-label">Command ID</div>
@@ -61,7 +61,7 @@
             context: inPropertyInspectorUUID,
             payload: {
               ip:         ip_input.value,
-              port:       port_input.value,
+              port:       parseInt(port_input.value),
               command_id: command_id_input.value
             }
           };

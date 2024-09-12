@@ -5,6 +5,7 @@ import (
     "flag"
     "fmt"
     "log"
+    "os"
     "net/url"
     "github.com/hypebeast/go-osc/osc"
     "github.com/gorilla/websocket"
@@ -27,13 +28,12 @@ type Event struct {
     Action string `json:"action"`
     Context string `json:"context"`
     Payload struct {
-        Settings struct {
-            IPAddress string `json:"ipAddress"`
-            Port      int    `json:"port"`
-            CommandID int    `json:"commandID"`
-        } `json:"settings"`
+        Settings Settings `json:"settings"`
     } `json:"payload"`
 }
+
+// Global variable to store settings
+var currentSettings Settings
 
 func sendOSC(ip string, port int, commandID int) {
     // Create OSC client and send the message
@@ -49,16 +49,28 @@ func sendOSC(ip string, port int, commandID int) {
 }
 
 func handleEvent(event Event) {
-    // Extract the IP, Port, and Command ID from the settings
-    ip := event.Payload.Settings.IPAddress
-    port := event.Payload.Settings.Port
-    commandID := event.Payload.Settings.CommandID
+    // Extract the IP, Port, and Command ID from the global settings
+    ip := currentSettings.IPAddress
+    port := currentSettings.Port
+    commandID := currentSettings.CommandID
 
-    fmt.Printf("Received event: Triggering OSC action with IP: %s, Port: %d, Command ID: %d\n", ip, port, commandID)
+    fmt.Printf("Received keyDown event: Triggering OSC action with IP: %s, Port: %d, Command ID: %d\n", ip, port, commandID)
     sendOSC(ip, port, commandID)
 }
 
 func main() {
+    f, err := os.OpenFile("plugin_debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer f.Close()
+    log.SetOutput(f)
+
+    log.Println("This is a debug message written to plugin_debug.log")
+
+
+
+
     // Parse command-line arguments passed by StreamDeck
     var port, pluginUUID, registerEvent, info string
     flag.StringVar(&port, "port", "", "WebSocket port provided by StreamDeck")
@@ -111,14 +123,16 @@ func main() {
             continue
         }
 
-        // Handle the event (trigger the OSC action)
-        if event.Event == "keyDown" {  // Handle key down (button press) events
+        // Handle the keyDown event (button press)
+        if event.Event == "keyDown" {
             handleEvent(event)
         }
 
+        // Handle the didReceiveSettings event to update the global settings
         if event.Event == "didReceiveSettings" {
-            settings := event.Payload.Settings
-            fmt.Printf("Settings received: IP: %s, Port: %d, Command ID: %d\n", settings.IPAddress, settings.Port, settings.CommandID)
+            currentSettings = event.Payload.Settings
+            fmt.Printf("Settings received: IP: %s, Port: %d, Command ID: %d\n", currentSettings.IPAddress, currentSettings.Port, currentSettings.CommandID)
         }
     }
 }
+
