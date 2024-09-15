@@ -1,13 +1,15 @@
 package main
 
 import (
+	"net"
+	"bytes"
+	"time"
     "encoding/json"
     "flag"
     "fmt"
     "log"
     "os"
     "net/url"
-    "github.com/hypebeast/go-osc/osc"
     "github.com/gorilla/websocket"
 )
 
@@ -35,26 +37,70 @@ type Event struct {
 // Global variable to store settings
 var currentSettings Settings
 
+// padString pads a string to a multiple of 4 bytes by adding null bytes (0x00).
+func padString(input string) []byte {
+	// Start by appending a null terminator to the input string
+	strWithNull := input + "\x00"
+
+	// Calculate the total length including the null character
+	length := len(strWithNull)
+
+	// Calculate how much padding is required to make the length a multiple of 4
+	padding := (4 - (length % 4)) % 4
+
+	// Append the necessary number of null bytes (0-3)
+	paddedString := strWithNull + string(bytes.Repeat([]byte{'\x00'}, padding))
+
+	result := []byte(paddedString)
+	return result
+}
+
+// createOSCPacket constructs the OSC packet with address, type tags, and arguments,
+// and then applies padding to make the final packet a multiple of 4 bytes.
+func createOSCPacket(address, argument string) []byte {
+    var buf bytes.Buffer
+
+    // Write the OSC address (e.g., "/action")
+    buf.Write(padString(address))
+
+    // Write the OSC type tag (e.g., ",s" for a string argument)
+    buf.Write(padString(",s"))
+
+    // Write the OSC argument (e.g., "_S&M_INS_MARKER_PLAY")
+    buf.Write(padString(argument))
+
+    return buf.Bytes()
+}
+
 func sendOSC(ip string, port int, commandID string) {
-    // Create OSC client and send the message
+	client, err := net.ListenPacket("udp", "0.0.0.0:")
+	if err != nil {
+		return
+	}
 
-    log.Printf("COMMAND ID %s", commandID)
+	// It seems to be good practice to close the "connection" when the function
+	// is terminating but it seems the socket is closed before the packet is
+	// actually sent which is why the timer is added in the end.
+	// Maybe this should all happen in a goroutine anyway but not there yet
+	defer client.Close()
 
-    client := osc.NewClient(ip, port)
-    msg := osc.NewMessage("/action")
-    msg.Append(commandID)
+	packet := createOSCPacket("/action", commandID)
 
-    err := client.Send(msg)
-    if err != nil {
-        log.Fatalf("Failed to send OSC message: %v", err)
-    }
-    fmt.Printf("OSC message sent to %s:%d with Command ID: %s\n", ip, port, commandID)
+	RemoteAddr := net.UDPAddr{IP: net.ParseIP(ip), Port: port}
+
+	client.WriteTo(packet, &RemoteAddr)
+
+	// Can't get this code to work without the 50ms timer to allow
+	// the socket buffer to flush before the client connection is closed
+	// Not sure whether I should not defer the client.Close() in this
+	// context?
+	time.Sleep(50 * time.Millisecond)
 }
 
 func handleEvent(event Event) {
     // Extract the IP, Port, and Command ID from the global settings
-    ip := currentSettings.IPAddress
-    port := currentSettings.Port
+    ip        := currentSettings.IPAddress
+    port      := currentSettings.Port
     commandID := currentSettings.CommandID
 
     log.Printf("Received keyDown event: Triggering OSC action with IP: %s, Port: %d, Command ID: %s\n", ip, port, commandID)
