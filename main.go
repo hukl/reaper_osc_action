@@ -35,7 +35,7 @@ type Event struct {
 }
 
 // Global variable to store settings
-var currentSettings Settings
+var settingsMap = make(map[string]Settings)
 
 // padString pads a string to a multiple of 4 bytes by adding null bytes (0x00).
 func padString(input string) []byte {
@@ -98,30 +98,55 @@ func sendOSC(ip string, port int, commandID string) {
 }
 
 func handleEvent(event Event) {
-    // Extract the IP, Port, and Command ID from the global settings
-    ip        := currentSettings.IPAddress
-    port      := currentSettings.Port
-    commandID := currentSettings.CommandID
+    context := event.Context  // Unique context for each plugin instance
 
-    log.Printf("Received keyDown event: Triggering OSC action with IP: %s, Port: %d, Command ID: %s\n", ip, port, commandID)
+    // Retrieve the settings for the current context
+    settings, exists := settingsMap[context]
+    if !exists {
+        log.Printf("No settings found for context: %s\n", context)
+        return
+    }
+
+    // Extract the IP, Port, and Command ID from the instance-specific settings
+    ip        := settings.IPAddress
+    port      := settings.Port
+    commandID := settings.CommandID
+
+    log.Printf("Received keyDown event for context %s: Triggering OSC action with IP: %s, Port: %d, Command ID: %s\n", context, ip, port, commandID)
     sendOSC(ip, port, commandID)
 }
 
 func handleWillAppearEvent(event Event) {
-    // If no settings are present, initialize default settings
-    if event.Payload.Settings.IPAddress == "" || event.Payload.Settings.CommandID == "" {
-        log.Println("No settings found, initializing default settings")
-        currentSettings = Settings{
+	context := event.Context  // Unique context for each plugin instance
+
+    // Check if settings for this context already exist
+    if _, exists := settingsMap[context]; !exists {
+        log.Println("No settings found for context:", context, "Initializing default settings")
+        // If no settings are found for this context, initialize with default values
+        settingsMap[context] = Settings{
             IPAddress: "127.0.0.1", // default IP
             Port:      8000,        // default port
             CommandID: "defaultCommand", // default command
         }
-        log.Printf("Initialized settings: IP: %s, Port: %d, Command ID: %s\n", currentSettings.IPAddress, currentSettings.Port, currentSettings.CommandID)
+        log.Printf("Initialized settings for context %s: IP: %s, Port: %d, Command ID: %s\n", context, settingsMap[context].IPAddress, settingsMap[context].Port, settingsMap[context].CommandID)
     } else {
-        // If settings are present, load them
-        log.Printf("Settings loaded from willAppear: IP: %s, Port: %d, Command ID: %s\n", event.Payload.Settings.IPAddress, event.Payload.Settings.Port, event.Payload.Settings.CommandID)
-        currentSettings = event.Payload.Settings
+        // If settings are found, load them
+        log.Printf("Settings loaded for context %s: IP: %s, Port: %d, Command ID: %s\n", context, settingsMap[context].IPAddress, settingsMap[context].Port, settingsMap[context].CommandID)
     }
+}
+
+func handleDidReceiveSettingsEvent(event Event) {
+    context := event.Context  // Unique context for the plugin instance
+
+    // Update the settings for this context
+    log.Printf("Raw settings for context %s: %+v\n", context, event.Payload.Settings)
+    settingsMap[context] = event.Payload.Settings  // Store the settings for the specific context
+
+    log.Printf("Settings updated for context %s: IP: %q, Port: %d, Command ID: %s\n",
+               context,
+               settingsMap[context].IPAddress,
+               settingsMap[context].Port,
+               settingsMap[context].CommandID)
 }
 
 func main() {
@@ -201,9 +226,7 @@ func main() {
 
         // Handle the didReceiveSettings event to update the global settings
         if event.Event == "didReceiveSettings" {
-            log.Printf("Raw settings: %+v\n", event.Payload.Settings)
-            currentSettings = event.Payload.Settings
-            log.Printf("Settings received: IP: %q, Port: %d, Command ID: %s\n", currentSettings.IPAddress, currentSettings.Port, currentSettings.CommandID)
+			handleDidReceiveSettingsEvent(event)
         }
     }
 }

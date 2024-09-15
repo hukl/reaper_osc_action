@@ -21,6 +21,7 @@
   </div>
 
   <script>
+      const input_wrapper    = document.querySelector("div.sdpi-wrapper");
       const ip_input         = document.querySelector("input#ip");
       const port_input       = document.querySelector("input#port");
       const command_id_input = document.querySelector("input#command_id");
@@ -55,17 +56,20 @@
         }
 
 
-        command_id_input.addEventListener("input", function () {
-          const payload = {
-            event: "setSettings",
-            context: inPropertyInspectorUUID,
-            payload: {
-              ip:         ip_input.value,
-              port:       parseInt(port_input.value),
-              command_id: command_id_input.value
-            }
-          };
-          websocket.send(JSON.stringify(payload));
+        input_wrapper.addEventListener("input", function (e) {
+          if (["ip", "port", "command_id"].includes(e.target.id)) {
+
+            const payload = {
+              event: "setSettings",
+              context: inPropertyInspectorUUID,
+              payload: {
+                ip:         ip_input.value,
+                port:       parseInt(port_input.value),
+                command_id: command_id_input.value
+              }
+            };
+            websocket.send(JSON.stringify(payload));
+          }
         });
       };
     </script>
