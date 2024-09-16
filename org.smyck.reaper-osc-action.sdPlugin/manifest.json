@@ -1,9 +1,9 @@
 {
   "Actions": [
     {
-      "UUID": "com.smyck.oscaction",
-      "Name": "Reaper OSC Action",
-      "Tooltip": "Trigger an OSC Action",
+      "UUID": "org.smyck.reaper-osc-action",
+      "Name": "Send Command",
+      "Tooltip": "Trigger an Action in Reaper",
       "Icon": "action_icon",
       "States": [
         {
