@@ -2,13 +2,13 @@
 
 This is a Elgato StreamDeck Plugin to send Command IDs to the DAW Reaper via OSC. It is written in Go.
 
-Demo Video can be found here: https://youtu.be/ycdiO8_sevA
+Demo Video can be found here: https://www.youtube.com/watch?v=DTwFpP6xsbU
 
 ## Building
 
 Building the Plugin is quite easy:
 
-`go build -o com.smyck.oscaction.sdPlugin/oscaction`
+`make`
 
 ## Installation
 
