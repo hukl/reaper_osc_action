@@ -4,10 +4,10 @@
       "UUID": "com.smyck.oscaction",
       "Name": "Reaper OSC Action",
       "Tooltip": "Trigger an OSC Action",
-      "Icon": "actionIcon",
+      "Icon": "action_icon",
       "States": [
         {
-          "Image": "actionDefaultImage",
+          "Image": "action_icon",
           "TitleAlignment": "middle"
         }
       ],
@@ -28,6 +28,7 @@
   "Author": "hukl",
   "Name": "Reaper OSC Action",
   "Description": "A simple plugin to send COMMAND IDs via OSC to the DAW Reaper",
+  "Icon": "icon",
   "URL": "https://github.com/hukl/reaper_osc_action",
   "CodePath": "Something",
   "CodePathMac": "reaper_osc_action_macos-universal",
