@@ -3,7 +3,6 @@ package main
 import (
 	"net"
 	"bytes"
-	"time"
     "encoding/json"
     "flag"
     "fmt"
@@ -32,6 +31,10 @@ type Event struct {
     Payload struct {
         Settings Settings `json:"settings"`
     } `json:"payload"`
+}
+
+func (e Event) hasSettings() bool {
+    return e.Payload.Settings.IPAddress != "" || e.Payload.Settings.Port != 0 || e.Payload.Settings.CommandID != ""
 }
 
 // Global variable to store settings
@@ -72,32 +75,15 @@ func createOSCPacket(address, argument string) []byte {
     return buf.Bytes()
 }
 
-func sendOSC(ip string, port int, commandID string) {
-	client, err := net.ListenPacket("udp", "0.0.0.0:")
-	if err != nil {
-		return
-	}
-
-	// It seems to be good practice to close the "connection" when the function
-	// is terminating but it seems the socket is closed before the packet is
-	// actually sent which is why the timer is added in the end.
-	// Maybe this should all happen in a goroutine anyway but not there yet
-	defer client.Close()
-
+func sendOSC(ip string, port int, commandID string, udp_client net.PacketConn) {
 	packet := createOSCPacket("/action", commandID)
 
 	RemoteAddr := net.UDPAddr{IP: net.ParseIP(ip), Port: port}
 
-	client.WriteTo(packet, &RemoteAddr)
-
-	// Can't get this code to work without the 50ms timer to allow
-	// the socket buffer to flush before the client connection is closed
-	// Not sure whether I should not defer the client.Close() in this
-	// context?
-	time.Sleep(50 * time.Millisecond)
+	udp_client.WriteTo(packet, &RemoteAddr)
 }
 
-func handleEvent(event Event) {
+func handleEvent(event Event, udp_client net.PacketConn) {
     context := event.Context  // Unique context for each plugin instance
 
     // Retrieve the settings for the current context
@@ -113,26 +99,23 @@ func handleEvent(event Event) {
     commandID := settings.CommandID
 
     log.Printf("Received keyDown event for context %s: Triggering OSC action with IP: %s, Port: %d, Command ID: %s\n", context, ip, port, commandID)
-    sendOSC(ip, port, commandID)
+    sendOSC(ip, port, commandID, udp_client)
 }
 
 func handleWillAppearEvent(event Event) {
 	context := event.Context  // Unique context for each plugin instance
 
-    // Check if settings for this context already exist
-    if _, exists := settingsMap[context]; !exists {
+	if (event.hasSettings()) {
+		settingsMap[context] = event.Payload.Settings
+        log.Printf("Initialized settings for context %s: IP: %s, Port: %d, Command ID: %s\n", context, settingsMap[context].IPAddress, settingsMap[context].Port, settingsMap[context].CommandID)
+	} else {
         log.Println("No settings found for context:", context, "Initializing default settings")
-        // If no settings are found for this context, initialize with default values
-        settingsMap[context] = Settings{
+		settingsMap[context] = Settings{
             IPAddress: "127.0.0.1", // default IP
             Port:      8000,        // default port
             CommandID: "defaultCommand", // default command
         }
-        log.Printf("Initialized settings for context %s: IP: %s, Port: %d, Command ID: %s\n", context, settingsMap[context].IPAddress, settingsMap[context].Port, settingsMap[context].CommandID)
-    } else {
-        // If settings are found, load them
-        log.Printf("Settings loaded for context %s: IP: %s, Port: %d, Command ID: %s\n", context, settingsMap[context].IPAddress, settingsMap[context].Port, settingsMap[context].CommandID)
-    }
+	}
 }
 
 func handleDidReceiveSettingsEvent(event Event) {
@@ -156,11 +139,6 @@ func main() {
     }
     defer f.Close()
     log.SetOutput(f)
-
-    log.Println("This is a debug message written to plugin_debug.log")
-
-
-
 
     // Parse command-line arguments passed by StreamDeck
     var port, pluginUUID, registerEvent, info string
@@ -199,6 +177,13 @@ func main() {
 
     fmt.Println("Plugin registered successfully")
 
+	udp_client, err := net.ListenPacket("udp", "0.0.0.0:")
+	if err != nil {
+		return
+	}
+
+	defer udp_client.Close()
+
     // Listen for events from StreamDeck
     for {
         _, message, err := conn.ReadMessage()
@@ -216,7 +201,7 @@ func main() {
 
         // Handle the keyDown event (button press)
         if event.Event == "keyDown" {
-            handleEvent(event)
+            handleEvent(event, udp_client)
         }
 
         if event.Event == "willAppear" {

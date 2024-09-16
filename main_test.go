@@ -19,12 +19,11 @@ func Test_padString(t *testing.T) {
 	for _, tc := range testCases {
 		result := padString(tc.input)
 		// Check if the length of the byte slice is divisible by 4
-		if len(result) % 4 != 0 {
+		if len(result)%4 != 0 {
 			t.Errorf("Length of padded string for input %q is %d; expected to be divisible by 4", tc.input, len(result))
 		}
 	}
 }
-
 
 func Test_createOSCPacket(t *testing.T) {
 	testCases := []struct {
@@ -45,7 +44,7 @@ func Test_createOSCPacket(t *testing.T) {
 	for _, tc := range testCases {
 		result := createOSCPacket(tc.address, tc.argument)
 
-		if len(result) % 4 != 0 {
+		if len(result)%4 != 0 {
 			t.Errorf("Length of padded string for input is %d; expected to be divisible by 4", len(result))
 		}
 	}
