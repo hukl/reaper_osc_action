@@ -24,6 +24,7 @@ type Settings struct {
 	CommandID string `json:"command_id"`
 }
 
+// Struct to hold Event data coming from StreamDeck
 type Event struct {
 	Event   string `json:"event"`
 	Action  string `json:"action"`
@@ -33,11 +34,12 @@ type Event struct {
 	} `json:"payload"`
 }
 
+// Method to check if any settings have been provided or still null values
 func (e Event) hasSettings() bool {
 	return e.Payload.Settings.IPAddress != "" || e.Payload.Settings.Port != 0 || e.Payload.Settings.CommandID != ""
 }
 
-// Global variable to store settings
+// Global variable to store settings per StreamDeck context
 var settingsMap = make(map[string]Settings)
 
 // padString pads a string to a multiple of 4 bytes by adding null bytes (0x00).
@@ -45,10 +47,8 @@ func padString(input string) []byte {
 	// Start by appending a null terminator to the input string
 	strWithNull := input + "\x00"
 
-	// Calculate the total length including the null character
 	length := len(strWithNull)
 
-	// Calculate how much padding is required to make the length a multiple of 4
 	padding := (4 - (length % 4)) % 4
 
 	// Append the necessary number of null bytes (0-3)
@@ -59,7 +59,6 @@ func padString(input string) []byte {
 }
 
 // createOSCPacket constructs the OSC packet with address, type tags, and arguments,
-// and then applies padding to make the final packet a multiple of 4 bytes.
 func createOSCPacket(address, argument string) []byte {
 	var buf bytes.Buffer
 
@@ -82,6 +81,10 @@ func sendOSC(ip string, port int, commandID string, udp_client net.PacketConn) {
 
 	udp_client.WriteTo(packet, &RemoteAddr)
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Event Handlers                                                             //
+////////////////////////////////////////////////////////////////////////////////
 
 func handleEvent(event Event, udp_client net.PacketConn) {
 	context := event.Context // Unique context for each plugin instance
@@ -131,6 +134,10 @@ func handleDidReceiveSettingsEvent(event Event) {
 		settingsMap[context].Port,
 		settingsMap[context].CommandID)
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Main Function                                                              //
+////////////////////////////////////////////////////////////////////////////////
 
 func main() {
 	f, err := os.OpenFile("plugin_debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
