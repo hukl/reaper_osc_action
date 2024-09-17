@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 576 576" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(0.911654,0,0,0.911798,-178.405,-178.385)">
+        <g id="Action-Icon" serif:id="Action Icon">
+            <path d="M511.603,215C435.282,215 233.207,257.638 233.207,437.09C233.207,601.433 420.804,808 511.603,808C602.403,808 790,601.226 790,437.09C790.207,257.431 587.925,215 511.603,215Z" style="fill:none;fill-rule:nonzero;stroke:rgb(226,226,226);stroke-width:16.45px;"/>
+        </g>
+    </g>
+</svg>
