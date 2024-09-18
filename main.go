@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/gorilla/websocket"
 	"log"
 	"net"
 	"net/url"
 	"os"
+
+	// External Dependencies
+	"github.com/gorilla/websocket"
 )
 
 // Struct to hold the registration message
@@ -79,7 +81,10 @@ func sendOSC(ip string, port int, commandID string, udp_client net.PacketConn) {
 
 	RemoteAddr := net.UDPAddr{IP: net.ParseIP(ip), Port: port}
 
-	udp_client.WriteTo(packet, &RemoteAddr)
+	_, err := udp_client.WriteTo(packet, &RemoteAddr)
+	if err != nil {
+		log.Printf("ALALALA")
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -140,7 +145,7 @@ func handleDidReceiveSettingsEvent(event Event) {
 ////////////////////////////////////////////////////////////////////////////////
 
 func main() {
-	f, err := os.OpenFile("plugin_debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile("plugin_debug.log", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
