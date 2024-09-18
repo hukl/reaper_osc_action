@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := build
 
-.PHONY:fmt vet build test
+.PHONY:fmt vet build test plugin
 fmt:
 	go fmt
 
@@ -17,3 +17,10 @@ build: vet
 
 test:
 	go test ./...
+
+plugin:
+	# Requires fd and sd executables
+	# https://github.com/sharkdp/fd
+	# https://github.com/elgatosf/cli
+	fd -H -I '.DS_Store' -x rm -f
+	sd pack -f org.smyck.reaper-osc-action.sdPlugin
