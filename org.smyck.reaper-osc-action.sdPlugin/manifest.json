@@ -1,42 +1,44 @@
 {
-  "Actions": [
-    {
-      "UUID": "org.smyck.reaper-osc-action",
-      "Name": "Send Command",
-      "Tooltip": "Trigger an Action in Reaper",
-      "Icon": "icons/action_icon",
-      "States": [
-        {
-          "Image": "icons/action_icon",
-          "TitleAlignment": "middle"
-        }
-      ],
-      "PropertyInspectorPath": "property_inspector.html"
-    }
-  ],
-  "SDKVersion": 2,
-  "Software": {
-    "MinimumVersion": "4.1"
-  },
-  "OS": [
-    {
-      "Platform": "mac",
-      "MinimumVersion": "10.11"
-    },
-    {
-      "Platform": "windows",
-      "MinimumVersion": "10"
-    }
-  ],
-  "Version": "1.0",
-  "Author": "hukl",
-  "Name": "Reaper OSC Action",
-  "Description": "A simple plugin to send COMMAND IDs via OSC to the DAW Reaper",
-  "Icon": "icons/icon",
-  "Category": "Reaper OSC Action",
-  "CategoryIcon": "icons/category_icon",
-  "URL": "https://github.com/hukl/reaper_osc_action",
-  "CodePath": "Something",
-  "CodePathMac": "reaper_osc_action_macos-universal",
-  "CodePathWin": "reaper_osc_action_win-amd64"
+	"$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+	"Actions": [
+		{
+			"Name": "Send Command",
+			"Tooltip": "Trigger an Action in Reaper",
+			"UUID": "org.smyck.reaper-osc-action.send-command",
+			"Icon": "icons/action_icon",
+			"States": [
+				{
+					"Image": "icons/action_icon",
+					"TitleAlignment": "middle"
+				}
+			],
+			"PropertyInspectorPath": "property_inspector.html"
+		}
+	],
+	"SDKVersion": 2,
+	"Software": {
+		"MinimumVersion": "6.4"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "10.11"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Version": "1.0.0.0",
+	"Author": "hukl",
+	"Name": "Reaper OSC Action",
+	"UUID": "org.smyck.reaper-osc-action",
+	"Description": "A simple plugin to send COMMAND IDs via OSC to the DAW Reaper",
+	"Icon": "icons/icon",
+	"Category": "Reaper OSC Action",
+	"CategoryIcon": "icons/category_icon",
+	"URL": "https://github.com/hukl/reaper_osc_action",
+	"CodePath": "reaper_osc_action_macos-universal",
+	"CodePathMac": "reaper_osc_action_macos-universal",
+	"CodePathWin": "reaper_osc_action_win-amd64"
 }
