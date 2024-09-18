@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func Test_padString(t *testing.T) {
+func Test_PadString(t *testing.T) {
 	testCases := []struct {
 		input string
 	}{
@@ -27,7 +27,7 @@ func Test_padString(t *testing.T) {
 	}
 }
 
-func Test_createOSCPacket(t *testing.T) {
+func Test_CreateOSCPacket(t *testing.T) {
 	testCases := []struct {
 		address  string
 		argument string
