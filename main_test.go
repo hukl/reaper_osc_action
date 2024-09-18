@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"reaper_osc_action/osc"
+	"testing"
+)
 
 func Test_padString(t *testing.T) {
 	testCases := []struct {
@@ -17,7 +20,7 @@ func Test_padString(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		result := padString(tc.input)
+		result := osc.PadString(tc.input)
 		// Check if the length of the byte slice is divisible by 4
 		if len(result)%4 != 0 {
 			t.Errorf("Length of padded string for input %q is %d; expected to be divisible by 4", tc.input, len(result))
@@ -42,7 +45,7 @@ func Test_createOSCPacket(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		result := createOSCPacket(tc.address, tc.argument)
+		result := osc.CreateOSCPacket(tc.address, tc.argument)
 
 		if len(result)%4 != 0 {
 			t.Errorf("Length of padded string for input is %d; expected to be divisible by 4", len(result))
