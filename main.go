@@ -111,6 +111,7 @@ func handleEvent(event Event, udp_client net.PacketConn) {
 }
 
 func handleWillAppearEvent(event Event) {
+	log.Println("Plugin appeared, initializing settings...")
 	context := event.Context // Unique context for each plugin instance
 
 	if event.hasSettings() {
@@ -211,19 +212,16 @@ func main() {
 			continue
 		}
 
-		// Handle the keyDown event (button press)
-		if event.Event == "keyDown" {
+		// Event Dispatch
+		switch event.Event {
+		case "keyDown":
 			handleEvent(event, udp_client)
-		}
-
-		if event.Event == "willAppear" {
-			log.Println("Plugin appeared, initializing settings...")
+		case "willAppear":
 			handleWillAppearEvent(event)
-		}
-
-		// Handle the didReceiveSettings event to update the global settings
-		if event.Event == "didReceiveSettings" {
+		case "didReceiveSettings":
 			handleDidReceiveSettingsEvent(event)
+		default:
+			log.Printf("Unhandled Event Type: %s\n", event.Event)
 		}
 	}
 }
