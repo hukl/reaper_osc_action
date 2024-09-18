@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -9,6 +8,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"reaper_osc_action/osc"
 
 	// External Dependencies
 	"github.com/gorilla/websocket"
@@ -44,49 +44,6 @@ func (e Event) hasSettings() bool {
 // Global variable to store settings per StreamDeck context
 var settingsMap = make(map[string]Settings)
 
-// padString pads a string to a multiple of 4 bytes by adding null bytes (0x00).
-func padString(input string) []byte {
-	// Start by appending a null terminator to the input string
-	strWithNull := input + "\x00"
-
-	length := len(strWithNull)
-
-	padding := (4 - (length % 4)) % 4
-
-	// Append the necessary number of null bytes (0-3)
-	paddedString := strWithNull + string(bytes.Repeat([]byte{'\x00'}, padding))
-
-	result := []byte(paddedString)
-	return result
-}
-
-// createOSCPacket constructs the OSC packet with address, type tags, and arguments,
-func createOSCPacket(address, argument string) []byte {
-	var buf bytes.Buffer
-
-	// Write the OSC address (e.g., "/action")
-	buf.Write(padString(address))
-
-	// Write the OSC type tag (e.g., ",s" for a string argument)
-	buf.Write(padString(",s"))
-
-	// Write the OSC argument (e.g., "_S&M_INS_MARKER_PLAY")
-	buf.Write(padString(argument))
-
-	return buf.Bytes()
-}
-
-func sendOSC(ip string, port int, commandID string, udp_client net.PacketConn) {
-	packet := createOSCPacket("/action", commandID)
-
-	RemoteAddr := net.UDPAddr{IP: net.ParseIP(ip), Port: port}
-
-	_, err := udp_client.WriteTo(packet, &RemoteAddr)
-	if err != nil {
-		log.Printf("ALALALA")
-	}
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // Event Handlers                                                             //
 ////////////////////////////////////////////////////////////////////////////////
@@ -107,7 +64,7 @@ func handleEvent(event Event, udp_client net.PacketConn) {
 	commandID := settings.CommandID
 
 	log.Printf("Received keyDown event for context %s: Triggering OSC action with IP: %s, Port: %d, Command ID: %s\n", context, ip, port, commandID)
-	sendOSC(ip, port, commandID, udp_client)
+	osc.SendOSC(ip, port, commandID, udp_client)
 }
 
 func handleWillAppearEvent(event Event) {
