@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := build
 
-.PHONY:fmt vet build
+.PHONY:fmt vet build test
 fmt:
 	go fmt
 
@@ -14,3 +14,6 @@ build: vet
 	rm org.smyck.reaper-osc-action.sdPlugin/reaper_osc_action_macos-amd64
 	rm org.smyck.reaper-osc-action.sdPlugin/reaper_osc_action_macos-arm64
 	GOOS=windows GOARCH=amd64 go build -o org.smyck.reaper-osc-action.sdPlugin/reaper_osc_action_win-amd64
+
+test:
+	go test ./...
