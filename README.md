@@ -36,3 +36,13 @@ You need the cli tools `fd` and `streamdeck`
 
 * https://github.com/sharkdp/fd
 * https://github.com/elgatosf/cli
+
+## Setup of Reaper
+
+To make this all work:
+
+* Go to Reapers Preferences > Control / OSC / Web
+* Click "Add" and to add an OSC control surface
+* In the Control Surface Settings dialogue, set the mode to "Configure device IP + local port
+* Choose a "Local listen port" of your choice and use that in the Streamdeck Plugin
+* The "Listen" button will open a window to check whether Reaper is receiving the messages from StreamDeck

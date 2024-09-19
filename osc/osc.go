@@ -2,6 +2,7 @@ package osc
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"net"
 )
@@ -38,13 +39,18 @@ func CreateOSCPacket(address, argument string) []byte {
 	return buf.Bytes()
 }
 
-func SendOSC(ip string, port int, commandID string, udp_client net.PacketConn) {
+func SendOSC(host string, port int, commandID string, udp_client net.PacketConn) {
 	packet := CreateOSCPacket("/action", commandID)
 
-	RemoteAddr := net.UDPAddr{IP: net.ParseIP(ip), Port: port}
+	address := fmt.Sprintf("%s:%d", host, port)
 
-	_, err := udp_client.WriteTo(packet, &RemoteAddr)
+	RemoteAddr, err := net.ResolveUDPAddr("udp", address)
 	if err != nil {
-		log.Printf("ALALALA")
+		log.Printf("Could not resolve address")
+	}
+
+	_, err = udp_client.WriteTo(packet, RemoteAddr)
+	if err != nil {
+		log.Printf("Could not send packet")
 	}
 }

@@ -21,7 +21,7 @@ type RegistrationMessage struct {
 }
 
 type Settings struct {
-	IPAddress string `json:"ip"`
+	Host      string `json:"host"`
 	Port      int    `json:"port"`
 	CommandID string `json:"command_id"`
 }
@@ -38,7 +38,7 @@ type Event struct {
 
 // Method to check if any settings have been provided or still null values
 func (e Event) hasSettings() bool {
-	return e.Payload.Settings.IPAddress != "" || e.Payload.Settings.Port != 0 || e.Payload.Settings.CommandID != ""
+	return e.Payload.Settings.Host != "" || e.Payload.Settings.Port != 0 || e.Payload.Settings.CommandID != ""
 }
 
 // Global variable to store settings per StreamDeck context
@@ -59,12 +59,12 @@ func handleEvent(event Event, udp_client net.PacketConn) {
 	}
 
 	// Extract the IP, Port, and Command ID from the instance-specific settings
-	ip := settings.IPAddress
+	host := settings.Host
 	port := settings.Port
 	commandID := settings.CommandID
 
-	log.Printf("Received keyDown event for context %s: Triggering OSC action with IP: %s, Port: %d, Command ID: %s\n", context, ip, port, commandID)
-	osc.SendOSC(ip, port, commandID, udp_client)
+	log.Printf("Received keyDown event for context %s: Triggering OSC action with Host: %s, Port: %d, Command ID: %s\n", context, host, port, commandID)
+	osc.SendOSC(host, port, commandID, udp_client)
 }
 
 func handleWillAppearEvent(event Event) {
@@ -73,11 +73,11 @@ func handleWillAppearEvent(event Event) {
 
 	if event.hasSettings() {
 		settingsMap[context] = event.Payload.Settings
-		log.Printf("Initialized settings for context %s: IP: %s, Port: %d, Command ID: %s\n", context, settingsMap[context].IPAddress, settingsMap[context].Port, settingsMap[context].CommandID)
+		log.Printf("Initialized settings for context %s: IP: %s, Port: %d, Command ID: %s\n", context, settingsMap[context].Host, settingsMap[context].Port, settingsMap[context].CommandID)
 	} else {
 		log.Println("No settings found for context:", context, "Initializing default settings")
 		settingsMap[context] = Settings{
-			IPAddress: "127.0.0.1",      // default IP
+			Host:      "127.0.0.1",      // default IP
 			Port:      8000,             // default port
 			CommandID: "defaultCommand", // default command
 		}
@@ -93,7 +93,7 @@ func handleDidReceiveSettingsEvent(event Event) {
 
 	log.Printf("Settings updated for context %s: IP: %q, Port: %d, Command ID: %s\n",
 		context,
-		settingsMap[context].IPAddress,
+		settingsMap[context].Host,
 		settingsMap[context].Port,
 		settingsMap[context].CommandID)
 }

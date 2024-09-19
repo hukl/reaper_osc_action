@@ -6,15 +6,15 @@
 </head>
 <body>
   <div class="sdpi-wrapper">
-    <div class="sdpi-item" id="your_ip_required" title="Command">
-        <div class="sdpi-item-label">IP-Address</div>
-        <input class="sdpi-item-value" id="ip" value="" placeholder="127.0.0.1" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" required>
+    <div class="sdpi-item" id="your_host_required" title="Command">
+        <div class="sdpi-item-label">IP / Host</div>
+        <input class="sdpi-item-value" id="host" value="" placeholder="127.0.0.1" required>
     </div>
-    <div class="sdpi-item" id="your_ip_required" title="Command">
+    <div class="sdpi-item" id="your_port_required" title="Command">
         <div class="sdpi-item-label">Port</div>
-        <input class="sdpi-item-value" id="port" value="" placeholder="8346" pattern="\d{1,5}" required>
+        <input class="sdpi-item-value" id="port" value="" placeholder="8000" pattern="\d{1,5}" required>
     </div>
-    <div class="sdpi-item" id="your_ip_required" title="Command">
+    <div class="sdpi-item" id="your_command_required" title="Command">
         <div class="sdpi-item-label">Command ID</div>
         <input class="sdpi-item-value" id="command_id" value="" placeholder"40078" required>
     </div>
@@ -22,7 +22,7 @@
 
   <script>
       const input_wrapper    = document.querySelector("div.sdpi-wrapper");
-      const ip_input         = document.querySelector("input#ip");
+      const host_input       = document.querySelector("input#host");
       const port_input       = document.querySelector("input#port");
       const command_id_input = document.querySelector("input#command_id");
 
@@ -31,8 +31,8 @@
         const settings   = actionInfo.payload.settings;
         const websocket  = new WebSocket(`ws://localhost:${inPort}`);
 
-        if (settings.ip) {
-          ip_input.value = settings.ip;
+        if (settings.host) {
+          host_input.value = settings.host;
         }
         if (settings.port) {
           port_input.value = settings.port;
@@ -57,13 +57,13 @@
 
 
         input_wrapper.addEventListener("input", function (e) {
-          if (["ip", "port", "command_id"].includes(e.target.id)) {
+          if (["host", "port", "command_id"].includes(e.target.id)) {
 
             const payload = {
               event: "setSettings",
               context: inPropertyInspectorUUID,
               payload: {
-                ip:         ip_input.value,
+                host:       host_input.value,
                 port:       parseInt(port_input.value),
                 command_id: command_id_input.value
               }
