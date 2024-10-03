@@ -6,7 +6,9 @@ Demo Video can be found here: https://www.youtube.com/watch?v=DTwFpP6xsbU
 
 ## Installation
 
-The easiest way to install the plugin is to download the latest release:
+The easiest way to install the plugin is via the [Elgato Marketplace](https://marketplace.elgato.com/product/reaper-osc-action-1bfdb39f-d4b9-4912-b540-b5bcda219de7)
+
+If you prefer a manual install you can download the latest release:
 `org.smyck.reaper-osc-action.streamDeckPlugin`
 
 After downloading the file, a simple double click on the file should install it
