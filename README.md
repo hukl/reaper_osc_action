@@ -48,3 +48,5 @@ To make this all work:
 * In the Control Surface Settings dialogue, set the mode to "Configure device IP + local port
 * Choose a "Local listen port" of your choice and use that in the Streamdeck Plugin
 * The "Listen" button will open a window to check whether Reaper is receiving the messages from StreamDeck
+
+Test
